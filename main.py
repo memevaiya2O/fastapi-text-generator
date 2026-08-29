@@ -1,8 +1,7 @@
-from io import BytesIO
 import secrets
 
-from fastapi import FastAPI
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi import FastAPI, Response
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
 app = FastAPI(title="Simple Text File Generator")
@@ -16,6 +15,20 @@ def make_filename() -> str:
     """Return a filename containing a zero-padded six-digit numeric ID."""
     file_id = secrets.randbelow(1_000_000)
     return f"export_{file_id:06d}.txt"
+
+
+def download_response(text: str) -> Response:
+    """Create an immediate in-memory UTF-8 TXT download response."""
+    content = text.encode("utf-8")
+    return Response(
+        content=content,
+        media_type="text/plain",
+        headers={
+            "Content-Disposition": f'attachment; filename="{make_filename()}"',
+            "Content-Length": str(len(content)),
+            "Cache-Control": "no-store",
+        },
+    )
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -45,44 +58,18 @@ def home() -> str:
 
 
 @app.get("/gen")
-def generate_text(text: str = "") -> StreamingResponse:
-    """Accept text through ?text=... and return it as a UTF-8 download."""
-    content = text.encode("utf-8")
-    return StreamingResponse(
-        BytesIO(content),
-        media_type="text/plain; charset=utf-8",
-        headers={"Content-Disposition": f'attachment; filename="{make_filename()}"'},
-    )
-
-
-@app.get("/gen")
-def generate_text(text: str = "") -> StreamingResponse:
-    """Accept text through ?text=... and return it as a UTF-8 download."""
-    content = text.encode("utf-8")
-    return StreamingResponse(
-        BytesIO(content),
-        media_type="text/plain; charset=utf-8",
-        headers={"Content-Disposition": f'attachment; filename="{make_filename()}"'},
-    )
+def generate_text(text: str = "") -> Response:
+    """Accept ?text=... and immediately return a TXT download."""
+    return download_response(text)
 
 
 @app.post("/export")
-def export_text(payload: TextRequest) -> StreamingResponse:
-    """Accept JSON text and return it as a UTF-8 downloadable TXT file."""
-    content = payload.text.encode("utf-8")
-    return StreamingResponse(
-        BytesIO(content),
-        media_type="text/plain; charset=utf-8",
-        headers={"Content-Disposition": f'attachment; filename="{make_filename()}"'},
-    )
+def export_text(payload: TextRequest) -> Response:
+    """Accept JSON text and immediately return a TXT download."""
+    return download_response(payload.text)
 
 
 @app.post("/export-form")
-async def export_form(text: str = "") -> StreamingResponse:
-    """Accept the browser form and return the same UTF-8 TXT download."""
-    content = text.encode("utf-8")
-    return StreamingResponse(
-        BytesIO(content),
-        media_type="text/plain; charset=utf-8",
-        headers={"Content-Disposition": f'attachment; filename="{make_filename()}"'},
-    )
+async def export_form(text: str = "") -> Response:
+    """Accept browser form text and immediately return a TXT download."""
+    return download_response(text)
