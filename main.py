@@ -44,6 +44,28 @@ def home() -> str:
 </html>"""
 
 
+@app.get("/gen")
+def generate_text(text: str = "") -> StreamingResponse:
+    """Accept text through ?text=... and return it as a UTF-8 download."""
+    content = text.encode("utf-8")
+    return StreamingResponse(
+        BytesIO(content),
+        media_type="text/plain; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="{make_filename()}"'},
+    )
+
+
+@app.get("/gen")
+def generate_text(text: str = "") -> StreamingResponse:
+    """Accept text through ?text=... and return it as a UTF-8 download."""
+    content = text.encode("utf-8")
+    return StreamingResponse(
+        BytesIO(content),
+        media_type="text/plain; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="{make_filename()}"'},
+    )
+
+
 @app.post("/export")
 def export_text(payload: TextRequest) -> StreamingResponse:
     """Accept JSON text and return it as a UTF-8 downloadable TXT file."""
