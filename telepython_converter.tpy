@@ -1,0 +1,20 @@
+try:
+    api_url = str(Bot.getData("export_api_url") or "")
+    text_value = str(msg).strip()
+    if not api_url:
+        bot.sendMessage("⚠️ Export API URL সেট করা হয়নি। আগে Bot Data-তে export_api_url নামে আপনার API URL সংরক্ষণ করুন।")
+    elif not text_value:
+        bot.sendMessage("✍️ আগে যে text-টি TXT file করতে চান সেটি পাঠান।")
+    else:
+        if api_url.endswith("/"):
+            api_url = api_url[:-1]
+        text_value = text_value.replace("%", "%25")
+        text_value = text_value.replace(" ", "%20")
+        text_value = text_value.replace("\n", "%0A")
+        text_value = text_value.replace("&", "%26")
+        text_value = text_value.replace("?", "%3F")
+        text_value = text_value.replace("#", "%23")
+        file_url = api_url + "/gen?text=" + text_value
+        bot.sendDocument(document=file_url, caption="✅ আপনার TXT file তৈরি হয়েছে।")
+except:
+    bot.sendMessage("❌ TXT file তৈরি করা যায়নি। API URL এবং server status যাচাই করুন।")

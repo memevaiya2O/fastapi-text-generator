@@ -57,3 +57,24 @@ curl -G "http://127.0.0.1:8000/gen" \
 | GET | `/gen?text=...` | query parameter-এর text নিয়ে `.txt` download দেয় |
 | POST | `/export` | JSON text নিয়ে `.txt` download দেয় |
 | POST | `/export-form` | browser form-এর text নিয়ে `.txt` download দেয় |
+
+## Telebot Creator TPY converter
+
+`telepython_converter.tpy` হলো Telebot Creator-এর wildcard converter code। এটি user-এর পাঠানো যেকোনো text নিয়ে `/gen?text=...` API call-এর document URL হিসেবে Telegram-এ পাঠায়। Telegram নিজে URL থেকে generated TXT file এনে user-এর chat-এ document হিসেবে পাঠায়। ফলে TPY bot-এ আলাদা file storage বা manual upload দরকার হয় না।
+
+ব্যবহারের আগে Bot Data-তে এই key সেট করুন:
+
+```text
+Key: export_api_url
+Value: https://আপনার-api-domain.vercel.app
+```
+
+তারপর `telepython_converter.tpy` code-টি `*` wildcard command-এ বসান। User সরাসরি যেকোনো text পাঠালেই generated `export_######.txt` file document হিসেবে চলে যাবে।
+
+Local API ব্যবহার করলে value হবে:
+
+```text
+http://127.0.0.1:8000
+```
+
+তবে Telegram server থেকে local `127.0.0.1` access করা যায় না; production-এ অবশ্যই public HTTPS API URL ব্যবহার করতে হবে।
