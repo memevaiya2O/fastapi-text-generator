@@ -78,3 +78,24 @@ http://127.0.0.1:8000
 ```
 
 তবে Telegram server থেকে local `127.0.0.1` access করা যায় না; production-এ অবশ্যই public HTTPS API URL ব্যবহার করতে হবে।
+
+## Open-source API এবং TelePython-এর সহজ configuration
+
+এই project কোনো OpenAI, Claude, Telegram বা অন্য third-party text API ব্যবহার করে না। এটি নিজেই text গ্রহণ করে এবং response body-তে TXT file ফেরত দেয়। TelePython-এর কাজ শুধু সেই public URL-টি Telegram document হিসেবে পাঠানো।
+
+Vercel-এ deploy করার জন্য repository import করলে `api/index.py` entrypoint ব্যবহার হবে। Deploy হওয়ার পর API URL হবে:
+
+```text
+https://YOUR-VERCEL-DOMAIN.vercel.app/gen?text=Hello
+```
+
+Telebot Creator-এ Bot Data-তে শুধু একবার সংরক্ষণ করুন:
+
+```text
+Key: export_api_url
+Value: https://YOUR-VERCEL-DOMAIN.vercel.app
+```
+
+এরপর `telepython_converter.tpy` code-টি `*` wildcard command-এ paste করুন। কোনো user text পাঠালেই code `/gen?text=...` URL তৈরি করে `bot.sendDocument()`-এর মাধ্যমে file পাঠাবে।
+
+Vercel Hobby Plan-এ deploy করার সময় repository-টি আপনার নিজের Vercel personal account-এ import করুন, Team collaboration project হিসেবে নয়।
